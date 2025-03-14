@@ -159,6 +159,9 @@ if __name__ == "__main__":
         test_data, batch_size=args.batch_size, shuffle=True, drop_last=False
     )
 
+    print("train_data: ", train_data.__len__())
+    print("test_data: ", test_data.__len__())
+
     model = ResNet50(num_classes=len(train_data.categories))
 
     train(
