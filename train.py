@@ -1,3 +1,4 @@
+import argparse
 import os
 
 import torch
@@ -16,6 +17,17 @@ from tqdm.autonotebook import tqdm
 
 from data import ClotheDataset
 from model import ResNet50
+
+
+def get_args():
+    parser = argparse.ArgumentParser(description="Animals classifier")
+    parser.add_argument(
+        "--data_path", type=str, default="data/voc", help="the root folder of the data"
+    )
+    parser.add_argument("--epochs", default=20, type=int, help="Total number of epochs")
+    parser.add_argument("--batch_size", default=4, type=int)
+    args = parser.parse_args()
+    return args
 
 
 def train(
@@ -110,6 +122,7 @@ def train(
 
 
 if __name__ == "__main__":
+    args = get_args()
     transform_train = Compose(
         [
             ColorJitter(brightness=0.2, contrast=0.3, saturation=0.2, hue=0.1),
@@ -129,21 +142,21 @@ if __name__ == "__main__":
     )
 
     train_data = ClotheDataset(
-        datasets_path=".\datasets",
+        datasets_path=args.data_path,
         part="train",
         transform=transform_train,
     )
     test_data = ClotheDataset(
-        datasets_path=".\datasets",
+        datasets_path=args.data_path,
         part="test",
         transform=transform_test,
     )
     train_dataloader = DataLoader(
-        train_data, batch_size=16, shuffle=True, drop_last=True
+        train_data, batch_size=args.batch_size, shuffle=True, drop_last=True
     )
 
     test_dataloader = DataLoader(
-        test_data, batch_size=16, shuffle=True, drop_last=False
+        test_data, batch_size=args.batch_size, shuffle=True, drop_last=False
     )
 
     model = ResNet50(num_classes=len(train_data.categories))
@@ -153,6 +166,6 @@ if __name__ == "__main__":
         train_dataloader=train_dataloader,
         test_dataloader=test_dataloader,
         is_load_model=False,
-        epochs=20,
+        epochs=args.epochs,
         lr=1e-3,
     )
